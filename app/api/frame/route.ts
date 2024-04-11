@@ -1,6 +1,13 @@
 import { FrameRequest, getFrameMessage, getFrameHtmlResponse } from '@coinbase/onchainkit/frame';
 import { NextRequest, NextResponse } from 'next/server';
 import { NEXT_PUBLIC_URL } from '../../config';
+import usePersistentStore from '../../../store/usePersistentStore';
+
+// Define a type for the store 
+type UsePersistentStoreType = {
+  waves: number;
+  incrementWaves: () => void;
+};
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
   const body: FrameRequest = await req.json();
@@ -10,41 +17,29 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     return new NextResponse('Message not valid', { status: 500 });
   }
 
-  const text = message.input || '';
+  (usePersistentStore as unknown as UsePersistentStoreType).incrementWaves();
+
   let state = {
     page: 0,
+    waves: usePersistentStore((state) => state.waves)
   };
   try {
-    state = JSON.parse(decodeURIComponent(message.state?.serialized));
+    state = {...state, ...JSON.parse(decodeURIComponent(message.state?.serialized))};
   } catch (e) {
     console.error(e);
-  }
-
-  /**
-   * Use this code to redirect to a different page
-   */
-  if (message?.button === 3) {
-    return NextResponse.redirect(
-      'https://www.google.com/search?q=cute+dog+pictures&tbm=isch&source=lnms',
-      { status: 302 },
-    );
   }
 
   return new NextResponse(
     getFrameHtmlResponse({
       buttons: [
         {
-          label: `State: ${state?.page || 0}`,
+          label: `Waves: ${state?.waves || 0}`,
         },
         {
           action: 'link',
           label: 'OnchainKit',
           target: 'https://onchainkit.xyz',
-        },
-        {
-          action: 'post_redirect',
-          label: 'Dog pictures',
-        },
+        }
       ],
       image: {
         src: `${NEXT_PUBLIC_URL}/mascot-1.png`,

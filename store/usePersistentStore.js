@@ -4,7 +4,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 const usePersistentStore = create(
   persist(
     (set, get) => ({
-      waves: 0
+      waves: 0,
+      incrementWaves: () => set((state) => ({ waves: state.waves + 1 })),
     }),
     {
       name: 'persistence-storage', // name of item in the storage (must be unique)

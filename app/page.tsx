@@ -16,7 +16,7 @@ const frameMetadata = getFrameMetadata({
   ],
   image: {
     src: `${NEXT_PUBLIC_URL}/mascot-1.png`,
-    aspectRatio: '1:1',
+    aspectRatio: '1.91:1',
   },
   input: {
     text: 'Tell me a story',
